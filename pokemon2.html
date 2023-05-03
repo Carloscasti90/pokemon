@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pokémon API</title>
+  <meta charset="utf-8">
+</head>
+<body>
+  <h1>Pokémon API</h1>
+  <div id="pokemon-list"></div>
+  <button id="prev-btn">Anterior</button>
+  <button id="next-btn">Siguiente</button>
+  <script>
+    const pokemonListContainer = document.getElementById('pokemon-list');
+    const prevButton = document.getElementById('prev-btn');
+    const nextButton = document.getElementById('next-btn');
+    let currentUrl = 'https://pokeapi.co/api/v2/pokemon?limit=20';
+
+    function loadPokemonList(url) {
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const pokemonList = data.results;
+          pokemonListContainer.innerHTML = '';
+          pokemonList.forEach(pokemon => {
+            const pokemonUrl = pokemon.url;
+            fetch(pokemonUrl)
+              .then(response => response.json())
+              .then(pokemonData => {
+                const pokemonElement = createPokemonElement(pokemonData);
+                pokemonListContainer.appendChild(pokemonElement);
+              })
+              .catch(error => console.error(error));
+          });
+        })
+        .catch(error => console.error(error));
+    }
+
+    function createPokemonElement(pokemonData) {
+      const pokemonElement = document.createElement('div');
+      pokemonElement.classList.add('pokemon');
+      const pokemonImage = document.createElement('img');
+      pokemonImage.src = pokemonData.sprites.front_default;
+      const pokemonName = document.createElement('h2');
+      pokemonName.textContent = pokemonData.name;
+      const pokemonTypes = document.createElement('ul');
+      pokemonData.types.forEach(type => {
+        const pokemonType = document.createElement('li');
+        pokemonType.textContent = type.type.name;
+        pokemonTypes.appendChild(pokemonType);
+      });
+      pokemonElement.appendChild(pokemonImage);
+      pokemonElement.appendChild(pokemonName);
+      pokemonElement.appendChild(pokemonTypes);
+      return pokemonElement;
+    }
+
+    prevButton.addEventListener('click', () => {
+      if (currentUrl) {
+        loadPokemonList(currentUrl);
+        currentUrl = null;
+      }
+    });
+
+    nextButton.addEventListener('click', () => {
+      if (currentUrl) {
+        loadPokemonList(currentUrl);
+        currentUrl = null;
+      }
+    });
+
+    loadPokemonList(currentUrl);
+  </script>
+</body>
+</html>
